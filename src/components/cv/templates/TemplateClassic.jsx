@@ -1,96 +1,67 @@
 import { forwardRef } from 'react'
 import { useCVSections } from '../useCVData'
 import CVPhoto from '../CVPhoto'
+import '../cv-export.css'
 
 const TemplateClassic = forwardRef(function TemplateClassic({ data }, ref) {
   const cv = useCVSections(data)
   if (!cv) return null
 
   return (
-    <article
-      ref={ref}
-      className="mx-auto w-full max-w-[210mm] min-h-[280mm] bg-[#faf9f7] px-8 py-10 text-slate-800 sm:px-12"
-      style={{ fontFamily: "'Instrument Serif', Georgia, serif" }}
-    >
-      <header className="text-center">
+    <article ref={ref} className="cv-classic" data-cv-export>
+      <header>
         {cv.photo && (
-          <CVPhoto
-            src={cv.photo}
-            alt={cv.fullName}
-            className="mx-auto mb-4 h-24 w-24 rounded-full border-2 border-amber-200 shadow-sm"
-          />
+          <CVPhoto src={cv.photo} alt={cv.fullName} className="cv-classic-photo" />
         )}
-        <h1 className="text-4xl font-normal text-slate-900">{cv.fullName}</h1>
-        <p className="mt-1 font-sans text-sm font-medium uppercase tracking-[0.25em] text-amber-800">
-          {cv.title}
-        </p>
-        <p
-          className="mt-4 font-sans text-xs text-slate-500"
-          style={{ fontFamily: "'DM Sans', sans-serif" }}
-        >
+        <h1 className="cv-classic-name">{cv.fullName}</h1>
+        <p className="cv-classic-title">{cv.title}</p>
+        <p className="cv-classic-contact">
           {[cv.email, cv.phone, cv.location].filter(Boolean).join('  |  ')}
         </p>
       </header>
-      <div
-        className="mt-8 space-y-7 font-sans"
-        style={{ fontFamily: "'DM Sans', sans-serif" }}
-      >
+      <div className="cv-classic-body">
         {cv.summary && (
-          <section>
-            <h2 className="text-center text-[11px] font-bold uppercase tracking-widest text-amber-900">
-              Summary
-            </h2>
-            <p className="mt-3 text-center text-sm leading-relaxed text-slate-600">
-              {cv.summary}
-            </p>
+          <section className="cv-classic-section">
+            <h2 className="cv-classic-h2">Summary</h2>
+            <p className="cv-classic-center">{cv.summary}</p>
           </section>
         )}
         {cv.skills.length > 0 && (
-          <section>
-            <h2 className="text-center text-[11px] font-bold uppercase tracking-widest text-amber-900">
-              Skills
-            </h2>
-            <p className="mt-3 text-center text-sm text-slate-600">
-              {cv.skills.join('  ·  ')}
-            </p>
+          <section className="cv-classic-section">
+            <h2 className="cv-classic-h2">Skills</h2>
+            <p className="cv-classic-center">{cv.skills.join('  ·  ')}</p>
           </section>
         )}
         {cv.experience.length > 0 && (
-          <section>
-            <h2 className="border-b border-amber-200 pb-1 text-center text-[11px] font-bold uppercase tracking-widest text-amber-900">
-              Experience
-            </h2>
-            <div className="mt-4 space-y-5">
-              {cv.experience.map((job, i) => (
-                <div key={i}>
-                  <div className="flex justify-between">
-                    <h3 className="font-semibold text-slate-900">{job.role}</h3>
-                    <span className="text-xs text-slate-400">{job.period}</span>
-                  </div>
-                  <p className="text-sm italic text-slate-500">{job.company}</p>
-                  <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-slate-600">
-                    {job.bullets?.map((b, j) => (
-                      <li key={j}>{b}</li>
-                    ))}
-                  </ul>
+          <section className="cv-classic-section">
+            <h2 className="cv-classic-h2 cv-classic-h2-line">Experience</h2>
+            {cv.experience.map((job, i) => (
+              <div key={i} className="cv-job-block">
+                <div className="cv-classic-exp-header">
+                  <h3 className="cv-job-role">{job.role}</h3>
+                  <span className="cv-job-period">{job.period}</span>
                 </div>
-              ))}
-            </div>
+                <p className="cv-classic-company">{job.company}</p>
+                <ul className="cv-classic-list">
+                  {job.bullets?.map((b, j) => (
+                    <li key={j}>{b}</li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </section>
         )}
         {cv.education.length > 0 && (
           <section>
-            <h2 className="border-b border-amber-200 pb-1 text-center text-[11px] font-bold uppercase tracking-widest text-amber-900">
-              Education
-            </h2>
-            <div className="mt-4 space-y-2 text-center text-sm">
+            <h2 className="cv-classic-h2 cv-classic-h2-line">Education</h2>
+            <div className="cv-classic-center">
               {cv.education.map((edu, i) => (
                 <p key={i}>
-                  <span className="font-semibold">{edu.degree}</span>
+                  <span style={{ fontWeight: 600 }}>{edu.degree}</span>
                   {' — '}
                   {edu.school}
                   {edu.period && (
-                    <span className="text-slate-400"> ({edu.period})</span>
+                    <span style={{ color: '#94a3b8' }}> ({edu.period})</span>
                   )}
                 </p>
               ))}

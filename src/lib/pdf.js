@@ -1,5 +1,9 @@
-import html2canvas from 'html2canvas'
+import { domToPng } from 'modern-screenshot'
 import { jsPDF } from 'jspdf'
+
+const A4_W_MM = 210
+const A4_H_MM = 297
+const A4_W_PX = 794
 
 function waitForImages(root) {
   const images = root.querySelectorAll('img')
@@ -22,43 +26,86 @@ function waitForImages(root) {
   )
 }
 
-export async function downloadCVAsPDF(element, filename = 'cv.pdf') {
-  if (!element) {
-    throw new Error('Nothing to export')
+async function waitForFonts() {
+  if (document.fonts?.ready) {
+    await document.fonts.ready
   }
+}
 
-  await waitForImages(element)
+function unlockScrollParent(element) {
+  const scrollParent = element.closest('[data-cv-preview-scroll]')
+  if (!scrollParent) return () => {}
 
-  const canvas = await html2canvas(element, {
-    scale: 2,
-    useCORS: true,
-    allowTaint: true,
-    logging: false,
-    backgroundColor: '#ffffff',
-    imageTimeout: 20000,
-    windowWidth: element.scrollWidth,
-    windowHeight: element.scrollHeight,
+  const prev = {
+    maxHeight: scrollParent.style.maxHeight,
+    overflow: scrollParent.style.overflow,
+  }
+  scrollParent.style.maxHeight = 'none'
+  scrollParent.style.overflow = 'visible'
+  return () => {
+    scrollParent.style.maxHeight = prev.maxHeight
+    scrollParent.style.overflow = prev.overflow
+  }
+}
+
+function loadImage(dataUrl) {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    img.onload = () => resolve(img)
+    img.onerror = reject
+    img.src = dataUrl
   })
+}
 
-  const imgData = canvas.toDataURL('image/jpeg', 0.92)
-  const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
-  const pageWidth = pdf.internal.pageSize.getWidth()
-  const pageHeight = pdf.internal.pageSize.getHeight()
-  const imgWidth = pageWidth
-  const imgHeight = (canvas.height * imgWidth) / canvas.width
+function addImageToPdf(pdf, dataUrl, img) {
+  const pageW = A4_W_MM
+  const pageH = A4_H_MM
+  const imgH = (img.height / img.width) * pageW
 
-  let heightLeft = imgHeight
-  let position = 0
-
-  pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight)
-  heightLeft -= pageHeight
-
-  while (heightLeft > 0) {
-    position = heightLeft - imgHeight
-    pdf.addPage()
-    pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight)
-    heightLeft -= pageHeight
+  if (imgH <= pageH) {
+    pdf.addImage(dataUrl, 'PNG', 0, 0, pageW, imgH)
+    return
   }
 
-  pdf.save(filename)
+  let offsetY = 0
+  let page = 0
+  while (offsetY < imgH) {
+    if (page > 0) pdf.addPage()
+    pdf.addImage(dataUrl, 'PNG', 0, -offsetY, pageW, imgH)
+    offsetY += pageH
+    page += 1
+  }
+}
+
+export async function downloadCVAsPDF(element, filename = 'cv.pdf') {
+  if (!element) throw new Error('Nothing to export')
+
+  const restoreScroll = unlockScrollParent(element)
+  const prevWidth = element.style.width
+  const prevMinWidth = element.style.minWidth
+
+  element.style.width = `${A4_W_PX}px`
+  element.style.minWidth = `${A4_W_PX}px`
+
+  try {
+    await waitForFonts()
+    await waitForImages(element)
+    await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)))
+
+    const dataUrl = await domToPng(element, {
+      scale: 2,
+      backgroundColor: '#ffffff',
+      width: element.offsetWidth,
+      height: element.offsetHeight,
+    })
+
+    const img = await loadImage(dataUrl)
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
+    addImageToPdf(pdf, dataUrl, img)
+    pdf.save(filename)
+  } finally {
+    element.style.width = prevWidth
+    element.style.minWidth = prevMinWidth
+    restoreScroll()
+  }
 }

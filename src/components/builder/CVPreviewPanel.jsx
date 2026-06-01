@@ -54,7 +54,10 @@ export default function CVPreviewPanel({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
             >
-              <div className="max-h-[520px] overflow-auto rounded-2xl shadow-2xl shadow-slate-900/10 ring-1 ring-slate-200">
+              <div
+                data-cv-preview-scroll
+                className="max-h-[520px] overflow-auto rounded-2xl shadow-2xl shadow-slate-900/10 ring-1 ring-slate-200"
+              >
                 <CVPreview ref={cvRef} data={cvData} templateId={templateId} />
               </div>
               <TemplatePicker selectedId={templateId} onSelect={onTemplateChange} />

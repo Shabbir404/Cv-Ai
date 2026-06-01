@@ -64,10 +64,11 @@ export default function Builder() {
       let el = cvRef.current
       if (!showPreview) {
         setShowPreview(true)
-        await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)))
+        await new Promise((r) => setTimeout(r, 150))
         el = cvRef.current
       }
       if (!el) throw new Error('Preview not ready')
+      await new Promise((r) => setTimeout(r, 100))
       await downloadCVAsPDF(el, `${name}_CV.pdf`)
     } catch (err) {
       setError(err.message || 'PDF export failed. Try again.')

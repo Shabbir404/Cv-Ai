@@ -1,6 +1,7 @@
 import { forwardRef } from 'react'
 import { useCVSections } from '../useCVData'
 import CVPhoto from '../CVPhoto'
+import '../cv-export.css'
 
 const TemplateMinimal = forwardRef(function TemplateMinimal({ data }, ref) {
   const cv = useCVSections(data)
@@ -9,44 +10,31 @@ const TemplateMinimal = forwardRef(function TemplateMinimal({ data }, ref) {
   const contact = [cv.email, cv.phone, cv.location, cv.linkedin].filter(Boolean).join(' · ')
 
   return (
-    <article
-      ref={ref}
-      className="mx-auto w-full max-w-[210mm] min-h-[280mm] bg-white text-slate-800"
-      style={{ fontFamily: "'DM Sans', system-ui, sans-serif" }}
-    >
-      <header className="border-b-2 border-teal-600 px-8 py-10 sm:px-10">
-        <div className="flex items-start gap-6">
+    <article ref={ref} className="cv-minimal" data-cv-export>
+      <header className="cv-minimal-header">
+        <div className="cv-minimal-header-row">
           {cv.photo && (
-            <CVPhoto
-              src={cv.photo}
-              alt={cv.fullName}
-              className="h-20 w-20 shrink-0 rounded-full border-2 border-teal-100 shadow-md"
-            />
+            <CVPhoto src={cv.photo} alt={cv.fullName} className="cv-minimal-photo" />
           )}
-          <div className="min-w-0 flex-1">
-        <h1 className="text-3xl font-light tracking-tight text-slate-900 sm:text-4xl">
-          {cv.fullName}
-        </h1>
-        <p className="mt-2 text-base font-medium text-teal-700">{cv.title}</p>
-        {contact && <p className="mt-4 text-xs text-slate-500">{contact}</p>}
+          <div>
+            <h1 className="cv-minimal-name">{cv.fullName}</h1>
+            <p className="cv-minimal-title">{cv.title}</p>
+            {contact && <p className="cv-minimal-contact">{contact}</p>}
           </div>
         </div>
       </header>
-      <div className="space-y-8 px-8 py-8 sm:px-10">
+      <div className="cv-minimal-body">
         {cv.summary && (
-          <section>
-            <p className="text-sm leading-relaxed text-slate-600">{cv.summary}</p>
+          <section className="cv-minimal-section">
+            <p className="cv-main-text">{cv.summary}</p>
           </section>
         )}
         {cv.skills.length > 0 && (
-          <section>
-            <h2 className="text-xs font-bold uppercase tracking-widest text-teal-700">Skills</h2>
-            <div className="mt-3 flex flex-wrap gap-2">
+          <section className="cv-minimal-section">
+            <h2 className="cv-minimal-h2">Skills</h2>
+            <div className="cv-minimal-pills">
               {cv.skills.map((s) => (
-                <span
-                  key={s}
-                  className="rounded-full border border-teal-200 bg-teal-50 px-3 py-1 text-xs text-teal-800"
-                >
+                <span key={s} className="cv-minimal-pill">
                   {s}
                 </span>
               ))}
@@ -54,46 +42,40 @@ const TemplateMinimal = forwardRef(function TemplateMinimal({ data }, ref) {
           </section>
         )}
         {cv.experience.length > 0 && (
-          <section>
-            <h2 className="text-xs font-bold uppercase tracking-widest text-slate-900">
-              Experience
-            </h2>
-            <div className="mt-4 space-y-6">
-              {cv.experience.map((job, i) => (
-                <div key={i} className="grid gap-1 sm:grid-cols-[1fr_auto]">
+          <section className="cv-minimal-section">
+            <h2 className="cv-minimal-h2 cv-minimal-h2-dark">Experience</h2>
+            {cv.experience.map((job, i) => (
+              <div key={i} className="cv-job-block">
+                <div className="cv-job-header">
                   <div>
-                    <h3 className="font-semibold text-slate-900">{job.role}</h3>
-                    <p className="text-sm text-slate-500">{job.company}</p>
+                    <h3 className="cv-job-role">{job.role}</h3>
+                    <p className="cv-edu-school">{job.company}</p>
                   </div>
-                  <p className="text-xs text-slate-400 sm:text-right">{job.period}</p>
-                  <ul className="col-span-full mt-2 space-y-1">
-                    {job.bullets?.map((b, j) => (
-                      <li key={j} className="text-sm text-slate-600">
-                        {b}
-                      </li>
-                    ))}
-                  </ul>
+                  <span className="cv-job-period">{job.period}</span>
                 </div>
-              ))}
-            </div>
+                {job.bullets?.map((b, j) => (
+                  <p key={j} className="cv-job-bullet">
+                    {b}
+                  </p>
+                ))}
+              </div>
+            ))}
           </section>
         )}
         {cv.education.length > 0 && (
           <section>
-            <h2 className="text-xs font-bold uppercase tracking-widest text-slate-900">
-              Education
-            </h2>
-            <div className="mt-4 space-y-3">
-              {cv.education.map((edu, i) => (
-                <div key={i} className="flex justify-between gap-4">
+            <h2 className="cv-minimal-h2 cv-minimal-h2-dark">Education</h2>
+            {cv.education.map((edu, i) => (
+              <div key={i} className="cv-job-block">
+                <div className="cv-job-header">
                   <div>
-                    <p className="font-semibold text-slate-900">{edu.degree}</p>
-                    <p className="text-sm text-slate-500">{edu.school}</p>
+                    <p className="cv-job-role">{edu.degree}</p>
+                    <p className="cv-edu-school">{edu.school}</p>
                   </div>
-                  <p className="text-xs text-slate-400">{edu.period}</p>
+                  <span className="cv-job-period">{edu.period}</span>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </section>
         )}
       </div>
