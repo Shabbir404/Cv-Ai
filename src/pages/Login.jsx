@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
+import AuthLayout from '../components/auth/AuthLayout'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -30,65 +30,60 @@ export default function Login() {
   }
 
   return (
-    <div className="mx-auto flex min-h-[calc(100dvh-8rem)] max-w-md items-center px-4 py-12">
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="w-full rounded-2xl border border-slate-200 bg-white p-8 shadow-sm"
-      >
-        <h1 className="font-serif text-3xl text-ink">Welcome back</h1>
-        <p className="mt-2 text-sm text-muted">Sign in to access the CV builder.</p>
-
-        {!supabaseConfigured && (
-          <p className="mt-4 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">
-            Supabase not configured — you can continue to the builder without login.
-          </p>
-        )}
-
-        <form onSubmit={handleSubmit} className="mt-8 space-y-5">
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-ink">
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="mt-1.5 w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
-            />
-          </div>
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-ink">
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="mt-1.5 w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
-            />
-          </div>
-          {error && <p className="text-sm text-red-600">{error}</p>}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-full bg-accent py-3 text-sm font-semibold text-white transition hover:bg-indigo-600 disabled:opacity-60"
-          >
-            {loading ? 'Signing in…' : 'Sign in'}
-          </button>
-        </form>
-
-        <p className="mt-6 text-center text-sm text-muted">
-          No account?{' '}
-          <Link to="/signup" className="font-medium text-accent hover:underline">
-            Sign up
-          </Link>
+    <AuthLayout title="Welcome back" subtitle="Sign in to your CVai account.">
+      {!supabaseConfigured && (
+        <p className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-sm text-amber-800">
+          Supabase not configured — you can open the builder without signing in.
         </p>
-      </motion.div>
-    </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+        <div>
+          <label htmlFor="email" className="block text-sm font-medium text-slate-700">
+            Email
+          </label>
+          <input
+            id="email"
+            type="email"
+            required
+            autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="mt-1.5 w-full rounded-lg border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-900/5"
+          />
+        </div>
+        <div>
+          <label htmlFor="password" className="block text-sm font-medium text-slate-700">
+            Password
+          </label>
+          <input
+            id="password"
+            type="password"
+            required
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="mt-1.5 w-full rounded-lg border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-900/5"
+          />
+        </div>
+        {error && (
+          <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
+        )}
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full rounded-lg bg-slate-900 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-60"
+        >
+          {loading ? 'Signing in…' : 'Sign in'}
+        </button>
+      </form>
+
+      <p className="mt-8 text-center text-sm text-slate-500">
+        No account?{' '}
+        <Link to="/signup" className="font-semibold text-slate-900 hover:underline">
+          Create one
+        </Link>
+      </p>
+    </AuthLayout>
   )
 }

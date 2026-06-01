@@ -14,7 +14,7 @@ const CV_SCHEMA = `Return ONLY valid JSON (no markdown) matching this shape:
     {
       "role": "string",
       "company": "string",
-      "period": "e.g. Jan 2022 – Present",
+      "period": "human-readable period",
       "bullets": ["achievement with metrics where possible"]
     }
   ],
@@ -27,7 +27,7 @@ const CV_SCHEMA = `Return ONLY valid JSON (no markdown) matching this shape:
   ]
 }`
 
-export async function generateCV(jobDescription, profile) {
+export async function generateCV(jobDescription, candidateProfile) {
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY
   if (!apiKey) {
     throw new Error('Add VITE_GEMINI_API_KEY to your .env file')
@@ -35,14 +35,23 @@ export async function generateCV(jobDescription, profile) {
 
   const genAI = new GoogleGenerativeAI(apiKey)
   const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
+  const profileJson = JSON.stringify(candidateProfile, null, 2)
 
   const prompt = `You are an expert CV writer. Create a tailored, ATS-friendly CV for this job.
 
 JOB DESCRIPTION:
 ${jobDescription}
 
-CANDIDATE PROFILE (use as source of truth; enhance wording for the role):
-${profile}
+CANDIDATE DATA (JSON — use as source of truth; enhance wording for the role, do not invent employers or degrees):
+${profileJson}
+
+RULES:
+- Derive skills primarily from the job description requirements; merge with candidate extraSkills if provided.
+- Map candidate experience entries to CV experience with strong bullet points aligned to the job.
+- Use duration and joinedDate to build accurate period strings.
+- If candidate has currentJob, use that title unless the job description suggests a better aligned title.
+- Keep email, phone, location, linkedin from candidate data.
+- Write 3-5 bullets per major experience where possible.
 
 ${CV_SCHEMA}`
 
