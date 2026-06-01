@@ -7,7 +7,7 @@
   --color-muted: #64748b;
   --color-accent: #4f46e5;
   --color-accent-light: #818cf8;
-  --color-surface: #f8fafc;
+  --color-surface: #ffffff;
   --color-card: #ffffff;
 }
 
@@ -16,7 +16,7 @@ html {
 }
 
 body {
-  @apply bg-surface text-ink font-sans antialiased;
+  @apply bg-white text-ink font-sans antialiased;
   margin: 0;
 }
 
@@ -24,4 +24,12 @@ body {
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
+}
+
+.landing-grid {
+  background-image:
+    linear-gradient(to right, rgb(226 232 240 / 0.4) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(226 232 240 / 0.4) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 20%, transparent 70%);
 }
