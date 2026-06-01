@@ -2,13 +2,15 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import AuthLayout from '../components/auth/AuthLayout'
+import GoogleSignInButton from '../components/auth/GoogleSignInButton'
 
 export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const { signIn, supabaseConfigured } = useAuth()
+  const [googleLoading, setGoogleLoading] = useState(false)
+  const { signIn, signInWithGoogle, supabaseConfigured } = useAuth()
   const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
@@ -29,6 +31,21 @@ export default function Login() {
     }
   }
 
+  const handleGoogle = async () => {
+    setError('')
+    setGoogleLoading(true)
+    try {
+      if (!supabaseConfigured) {
+        setError('Configure Supabase to use Google sign in.')
+        return
+      }
+      await signInWithGoogle()
+    } catch (err) {
+      setError(err.message || 'Google sign in failed')
+      setGoogleLoading(false)
+    }
+  }
+
   return (
     <AuthLayout title="Welcome back" subtitle="Sign in to your CVai account.">
       {!supabaseConfigured && (
@@ -37,7 +54,25 @@ export default function Login() {
         </p>
       )}
 
-      <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+      {supabaseConfigured && (
+        <div className="mt-8">
+          <GoogleSignInButton
+            onClick={handleGoogle}
+            disabled={googleLoading || loading}
+            label={googleLoading ? 'Redirecting…' : 'Continue with Google'}
+          />
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-slate-200" />
+            </div>
+            <p className="relative mx-auto w-fit bg-white px-3 text-xs text-slate-400">
+              or sign in with email
+            </p>
+          </div>
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className={supabaseConfigured ? 'space-y-5' : 'mt-8 space-y-5'}>
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-slate-700">
             Email
@@ -71,7 +106,7 @@ export default function Login() {
         )}
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || googleLoading}
           className="w-full rounded-lg bg-slate-900 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-60"
         >
           {loading ? 'Signing in…' : 'Sign in'}

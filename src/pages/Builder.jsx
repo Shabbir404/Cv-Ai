@@ -1,8 +1,9 @@
 import { useRef, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
 import { Sparkles, Download, Eye, RotateCcw } from 'lucide-react'
-import CVPreview from '../components/CVPreview'
 import ProfileForm from '../components/builder/ProfileForm'
+import CVPreviewPanel from '../components/builder/CVPreviewPanel'
+import CVPreview from '../components/CVPreview'
+import { CV_TEMPLATES } from '../components/cv/templates'
 import { generateCV } from '../lib/gemini'
 import { downloadCVAsPDF } from '../lib/pdf'
 import {
@@ -15,11 +16,13 @@ export default function Builder() {
   const [jobDescription, setJobDescription] = useState('')
   const [profile, setProfile] = useState(initialProfile)
   const [cvData, setCvData] = useState(null)
+  const [templateId, setTemplateId] = useState(CV_TEMPLATES[0].id)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [showPreview, setShowPreview] = useState(false)
   const [downloading, setDownloading] = useState(false)
   const cvRef = useRef(null)
+  const hiddenCvRef = useRef(null)
 
   const handleGenerate = async () => {
     if (!jobDescription.trim()) {
@@ -48,11 +51,12 @@ export default function Builder() {
   }
 
   const handleDownload = async () => {
-    if (!cvRef.current || !cvData) return
+    const el = showPreview ? cvRef.current : hiddenCvRef.current
+    if (!el || !cvData) return
     setDownloading(true)
     try {
       const name = cvData.fullName?.replace(/\s+/g, '_') || 'cv'
-      await downloadCVAsPDF(cvRef.current, `${name}_CV.pdf`)
+      await downloadCVAsPDF(el, `${name}_CV.pdf`)
     } catch {
       setError('PDF export failed. Try again.')
     } finally {
@@ -64,6 +68,7 @@ export default function Builder() {
     setCvData(null)
     setShowPreview(false)
     setError('')
+    setTemplateId(CV_TEMPLATES[0].id)
     setProfile(initialProfile)
     setJobDescription('')
   }
@@ -151,52 +156,20 @@ export default function Builder() {
             </div>
           </div>
 
-          <div className="xl:sticky xl:top-20 xl:self-start">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
-              Live preview
-            </p>
-            <AnimatePresence mode="wait">
-              {loading && (
-                <motion.div
-                  key="loading"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="flex min-h-[480px] flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white p-8"
-                >
-                  <div className="h-10 w-10 animate-spin rounded-full border-2 border-slate-900 border-t-transparent" />
-                  <p className="mt-4 text-sm text-slate-500">Crafting your tailored CV…</p>
-                </motion.div>
-              )}
-              {!loading && showPreview && cvData && (
-                <motion.div
-                  key="preview"
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                  className="overflow-hidden rounded-2xl shadow-2xl shadow-slate-900/10 ring-1 ring-slate-200"
-                >
-                  <CVPreview ref={cvRef} data={cvData} />
-                </motion.div>
-              )}
-              {!loading && !showPreview && (
-                <motion.div
-                  key="empty"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="flex min-h-[480px] items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-400"
-                >
-                  Your CV preview will appear here after generation.
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+          <CVPreviewPanel
+            cvData={cvData}
+            loading={loading}
+            showPreview={showPreview}
+            templateId={templateId}
+            onTemplateChange={setTemplateId}
+            cvRef={cvRef}
+          />
         </div>
       </div>
 
       {cvData && !showPreview && (
         <div className="pointer-events-none fixed -left-[9999px] top-0" aria-hidden>
-          <CVPreview ref={cvRef} data={cvData} />
+          <CVPreview ref={hiddenCvRef} data={cvData} templateId={templateId} />
         </div>
       )}
     </div>
