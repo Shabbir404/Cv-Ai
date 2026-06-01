@@ -22,6 +22,7 @@ export function emptyEducation() {
 
 export const initialProfile = {
   fullName: '',
+  photo: null,
   email: '',
   phone: '',
   linkedin: '',

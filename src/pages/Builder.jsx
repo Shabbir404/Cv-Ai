@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { Sparkles, Download, Eye, RotateCcw } from 'lucide-react'
 import ProfileForm from '../components/builder/ProfileForm'
 import CVPreviewPanel from '../components/builder/CVPreviewPanel'
@@ -24,6 +24,11 @@ export default function Builder() {
   const cvRef = useRef(null)
   const hiddenCvRef = useRef(null)
 
+  useEffect(() => {
+    if (!cvData) return
+    setCvData((prev) => (prev ? { ...prev, photo: profile.photo || null } : prev))
+  }, [profile.photo])
+
   const handleGenerate = async () => {
     if (!jobDescription.trim()) {
       setError('Paste a job description first.')
@@ -41,7 +46,7 @@ export default function Builder() {
     try {
       const candidate = formatProfileForAI(profile)
       const data = await generateCV(jobDescription, candidate)
-      setCvData(data)
+      setCvData({ ...data, photo: profile.photo || null })
       setShowPreview(true)
     } catch (err) {
       setError(err.message || 'Failed to generate CV')
@@ -51,14 +56,21 @@ export default function Builder() {
   }
 
   const handleDownload = async () => {
-    const el = showPreview ? cvRef.current : hiddenCvRef.current
-    if (!el || !cvData) return
+    if (!cvData) return
     setDownloading(true)
+    setError('')
     try {
       const name = cvData.fullName?.replace(/\s+/g, '_') || 'cv'
+      let el = cvRef.current
+      if (!showPreview) {
+        setShowPreview(true)
+        await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)))
+        el = cvRef.current
+      }
+      if (!el) throw new Error('Preview not ready')
       await downloadCVAsPDF(el, `${name}_CV.pdf`)
-    } catch {
-      setError('PDF export failed. Try again.')
+    } catch (err) {
+      setError(err.message || 'PDF export failed. Try again.')
     } finally {
       setDownloading(false)
     }

@@ -1,6 +1,7 @@
 export function useCVSections(data) {
   if (!data) return null
   return {
+    photo: data.photo || null,
     fullName: data.fullName,
     title: data.title,
     email: data.email,

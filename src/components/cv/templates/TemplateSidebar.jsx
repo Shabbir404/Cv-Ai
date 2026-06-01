@@ -1,6 +1,7 @@
 import { forwardRef } from 'react'
 import { Mail, Phone, MapPin, Linkedin } from 'lucide-react'
 import { useCVSections } from '../useCVData'
+import CVPhoto from '../CVPhoto'
 
 const TemplateSidebar = forwardRef(function TemplateSidebar({ data }, ref) {
   const cv = useCVSections(data)
@@ -13,6 +14,13 @@ const TemplateSidebar = forwardRef(function TemplateSidebar({ data }, ref) {
       style={{ fontFamily: "'DM Sans', system-ui, sans-serif" }}
     >
       <aside className="w-[34%] shrink-0 bg-gradient-to-b from-slate-900 via-slate-900 to-slate-800 px-6 py-8 text-white sm:px-7 sm:py-10">
+        {cv.photo && (
+          <CVPhoto
+            src={cv.photo}
+            alt={cv.fullName}
+            className="mb-5 h-24 w-24 rounded-full border-2 border-white/20 ring-2 ring-indigo-400/40"
+          />
+        )}
         <h1 className="text-xl font-bold leading-tight sm:text-2xl">{cv.fullName}</h1>
         <p className="mt-2 text-sm font-medium text-indigo-200">{cv.title}</p>
         <div className="mt-6 space-y-2.5 border-t border-white/10 pt-6 text-xs text-slate-300">

@@ -1,5 +1,6 @@
 import { forwardRef } from 'react'
 import { useCVSections } from '../useCVData'
+import CVPhoto from '../CVPhoto'
 
 const TemplateMinimal = forwardRef(function TemplateMinimal({ data }, ref) {
   const cv = useCVSections(data)
@@ -14,11 +15,22 @@ const TemplateMinimal = forwardRef(function TemplateMinimal({ data }, ref) {
       style={{ fontFamily: "'DM Sans', system-ui, sans-serif" }}
     >
       <header className="border-b-2 border-teal-600 px-8 py-10 sm:px-10">
+        <div className="flex items-start gap-6">
+          {cv.photo && (
+            <CVPhoto
+              src={cv.photo}
+              alt={cv.fullName}
+              className="h-20 w-20 shrink-0 rounded-full border-2 border-teal-100 shadow-md"
+            />
+          )}
+          <div className="min-w-0 flex-1">
         <h1 className="text-3xl font-light tracking-tight text-slate-900 sm:text-4xl">
           {cv.fullName}
         </h1>
         <p className="mt-2 text-base font-medium text-teal-700">{cv.title}</p>
         {contact && <p className="mt-4 text-xs text-slate-500">{contact}</p>}
+          </div>
+        </div>
       </header>
       <div className="space-y-8 px-8 py-8 sm:px-10">
         {cv.summary && (

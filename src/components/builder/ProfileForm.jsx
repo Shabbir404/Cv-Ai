@@ -2,6 +2,7 @@ import { Plus, Trash2 } from 'lucide-react'
 import { COUNTRIES } from '../../data/countries'
 import { emptyExperience, emptyEducation } from '../../lib/profile'
 import { Label, Input, Select, YesNo, Section } from './FormControls'
+import PhotoUpload from './PhotoUpload'
 
 function DurationFields({ entry, onChange }) {
   return (
@@ -71,6 +72,10 @@ export default function ProfileForm({ profile, setProfile }) {
             onChange={(e) => update({ fullName: e.target.value })}
           />
         </div>
+        <PhotoUpload
+          photo={profile.photo}
+          onChange={(photo) => update({ photo })}
+        />
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <Label htmlFor="email">Email</Label>

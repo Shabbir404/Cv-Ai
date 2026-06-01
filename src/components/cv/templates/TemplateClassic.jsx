@@ -1,5 +1,6 @@
 import { forwardRef } from 'react'
 import { useCVSections } from '../useCVData'
+import CVPhoto from '../CVPhoto'
 
 const TemplateClassic = forwardRef(function TemplateClassic({ data }, ref) {
   const cv = useCVSections(data)
@@ -12,6 +13,13 @@ const TemplateClassic = forwardRef(function TemplateClassic({ data }, ref) {
       style={{ fontFamily: "'Instrument Serif', Georgia, serif" }}
     >
       <header className="text-center">
+        {cv.photo && (
+          <CVPhoto
+            src={cv.photo}
+            alt={cv.fullName}
+            className="mx-auto mb-4 h-24 w-24 rounded-full border-2 border-amber-200 shadow-sm"
+          />
+        )}
         <h1 className="text-4xl font-normal text-slate-900">{cv.fullName}</h1>
         <p className="mt-1 font-sans text-sm font-medium uppercase tracking-[0.25em] text-amber-800">
           {cv.title}
